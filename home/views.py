@@ -4,6 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from blog.models import Post
+import re
+import markdown2
+from blog.views import blogHome
 
 
 def home(request):
@@ -19,9 +22,11 @@ def contact(request):
         if len(name) < 2 or len(email) < 3 or len(phone) < 10 or len(content) < 4:
             messages.error(request, "Please fill the form correctly")
         else:
-            contact = Contact(name=name, email=email, phone=phone, content=content)
+            contact = Contact(name=name, email=email,
+                              phone=phone, content=content)
             contact.save()
-            messages.success(request, "Your message has been successfully sent")
+            messages.success(
+                request, "Your message has been successfully sent")
     return render(request, "home/contact.html")
 
 
@@ -35,7 +40,8 @@ def search(request):
         allPostsContent = Post.objects.filter(content__icontains=query)
         allPosts = allPostsTitle.union(allPostsContent, allPostsAuthor)
     if allPosts.count() == 0:
-        messages.warning(request, "No search results found. Please refine your query.")
+        messages.warning(
+            request, "No search results found. Please refine your query.")
     params = {"allPosts": allPosts, "query": query}
     return render(request, "home/search.html", params)
 
@@ -52,7 +58,8 @@ def handleSignUp(request):
 
         # check for errorneous input
         if len(username) >= 10:
-            messages.error(request, " Your user name must be under 10 characters")
+            messages.error(
+                request, " Your user name must be under 10 characters")
             return redirect("home")
 
         if not username.isalnum():
@@ -69,7 +76,8 @@ def handleSignUp(request):
         myuser.first_name = fname
         myuser.last_name = lname
         myuser.save()
-        messages.success(request, " Your blogverse has been successfully created")
+        messages.success(
+            request, " Your blogverse has been successfully created")
         return redirect("home")
 
     else:
@@ -106,3 +114,37 @@ def about(request):
 
 def editblog(request):
     return render(request, "blog/editblog.html")
+
+
+def generate_slug(title):
+    slug = re.sub(r'\s+', '+', title)
+    return slug
+
+
+def create_blog(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        # Assuming you're getting the username from the form
+        author_username = request.POST.get('author')
+        # Get the user object based on the username
+        # author = User.objects.get(username=author_username)
+        file = request.FILES.get('file')
+        # image = request.FILES.get('image')
+        html_content = markdown2.markdown(content)
+
+        if not title:
+            messages.error(request, "Please enter the title")
+        if not content:
+            messages.error(request, "Please give more content about your blog")
+        else:
+            # Generate the slug
+            slug = generate_slug(title)
+
+            post = Post(title=title, content=html_content,
+                        file=file, slug=slug)
+            post.save()
+            messages.success(request, "Blog has been successfully created")
+            return redirect('blog/blogHome')
+
+    return render(request, 'home/createblog.html')

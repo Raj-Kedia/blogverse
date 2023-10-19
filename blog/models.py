@@ -15,7 +15,7 @@ class Post(models.Model):
             self.slug = slugify(self.title.replace(" ", "+"))
         super().save(*args, **kwargs)
     views = models.IntegerField(default=0)
-    timeStamp = models.DateTimeField(blank=True)
+    timeStamp = models.DateTimeField(blank=True, default=now)
     file = models.FileField(upload_to='uploads/', null=True, blank=True)
     content = models.TextField()
 
