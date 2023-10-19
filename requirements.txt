@@ -3,3 +3,4 @@ django==4.2.5
 sqlparse==0.4.4
 tzdata==2023.3
 markdown2==2.4.10
+pip==23.2.1
