@@ -4,7 +4,6 @@ from blog.models import Post, BlogComment
 from django.contrib import messages
 from django.contrib.auth.models import User
 from blog.templatetags import extras
-import markdown2
 
 
 def blogHome(request):
@@ -53,37 +52,3 @@ def postComment(request):
                 request, "Your reply has been posted successfully")
 
     return redirect(f"/blog/{post.slug}")
-
-
-def generate_slug(title):
-    slug = re.sub(r'\s+', '+', title)
-    return slug
-
-
-def create_blog(request):
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        content = request.POST.get('content')
-        # Assuming you're getting the username from the form
-        author_username = request.POST.get('author')
-        # Get the user object based on the username
-        author = User.objects.get(username=author_username)
-        file = request.FILES.get('file')
-        image = request.FILES.get('image')
-        html_content = markdown2.markdown(content)
-
-        if not title:
-            messages.error(request, "Please enter the title")
-        if not content:
-            messages.error(request, "Please give more content about your blog")
-        else:
-            # Generate the slug
-            slug = generate_slug(title)
-
-            post = Post(title=title, content=html_content,
-                        file=file, slug=slug)
-            post.save()
-            messages.success(request, "Blog has been successfully created")
-            return redirect('viewblog')
-
-    return render(request, 'blog/createblog.html')

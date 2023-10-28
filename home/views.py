@@ -145,6 +145,6 @@ def create_blog(request):
                         file=file, slug=slug)
             post.save()
             messages.success(request, "Blog has been successfully created")
-            return redirect('blog/blogHome')
+            return redirect('createblog')
 
     return render(request, 'home/createblog.html')

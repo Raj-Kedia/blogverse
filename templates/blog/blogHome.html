@@ -22,7 +22,8 @@
         {% if post.file %}
         {% if ".mp4" in post.file.url|lower %}
         <video width="320" height="240" class="text-center" controls>
-            <source src="{{ post.file.url }}" type="video/mp4">
+            <source src="{{ post.file.url }}" alt="{{ post.title }}" style="width: 200px; height: 200px;"
+                type="video/mp4">
             Your browser does not support the video tag.
         </video>
         {% elif ".jpg" in post.file.url|lower or ".png" in post.file.url|lower %}
